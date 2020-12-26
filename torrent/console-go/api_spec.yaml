@@ -1,0 +1,24 @@
+openapi: 3.0.0
+servers:
+  - url: 'http://console.torrent.server/api'
+info:
+  description: Specification for the torrent server console to provide an interface to tools
+  version: 0.0.1
+  title: Torrent Console
+paths:
+  '/download/notify':
+    post:
+      summary: Notify server of a completed download
+      parameters:
+        - name: mediaType
+          in: query
+          description: Type of download. Either of movies or tvshows
+          required: true
+          schema:
+            type: string
+            enum: [movies, tvshows]
+      responses:
+        '200':
+          description: Sucessfully received download notification
+        '5XX':
+          description: Error processing download notification

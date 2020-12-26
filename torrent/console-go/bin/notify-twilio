@@ -1,0 +1,10 @@
+#!/usr/bin/python3
+
+import sys, os
+from twilio.rest import Client
+
+account_sid = os.environ.get("TWILIO_SID")
+auth_token = os.environ.get("TWILIO_TOKEN")
+client = Client(account_sid, auth_token)
+
+message = client.messages.create(body='%s has been added to Plex!' % sys.argv[1], from_=os.environ.get("TWILIO_NUMBER"), to=os.environ.get("NOTIFY_NUMBER"))

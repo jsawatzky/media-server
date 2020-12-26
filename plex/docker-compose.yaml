@@ -1,0 +1,17 @@
+version: "3.3"
+services:
+  plex:
+    image: linuxserver/plex
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID
+      - PGID
+      - VERSION=latest
+      - UMASK_SET=002
+      - TZ=America/Toronto
+    volumes:
+      - ${CONFIG_DIR}:/config
+      - ${TVSHOWS_DIR}:/data/tvshows
+      - ${MOVIES_DIR}:/data/movies
+    restart: unless-stopped

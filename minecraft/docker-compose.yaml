@@ -1,0 +1,13 @@
+version: "3.3"
+
+services:
+  console-go:
+    build: ./minecraft-server
+    image: miecraft/$MODPACK
+    container_name: $MODPACK
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    ports:
+      - 25565:25565
+    volumes:
+      - /home/server/minecraft/$MODPACK:/minecraft

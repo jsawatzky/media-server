@@ -1,0 +1,111 @@
+version: "3.3"
+services:
+  dnsproxy:
+   image: defreitas/dns-proxy-server
+   container_name: dnsproxy
+   networks:
+    internal:
+      ipv4_address: ${DNS_IP_ADDR}
+   environment:
+     - "MG_REGISTER_CONTAINER_NAMES=1"
+     - "MG_DOMAIN=${DOMAIN}"
+   volumes:
+     - /etc/resolv.conf:/etc/resolv.conf
+     - /var/run/docker.sock:/var/run/docker.sock
+
+  nordvpn:
+    image: bubuntux/nordvpn
+    container_name: nordvpn
+    networks:
+      - internal
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.rp_filter=2
+    devices:
+      - /dev/net/tun
+    dns:
+      - ${DNS_IP_ADDR}
+      - 8.8.8.8
+    environment:
+      - USER=${NORDVPN_USER}
+      - PASS=${NORDVPN_PASS}
+      - TECHNOLOGY=NordLynx
+      # - NETWORK=172.16.3.0/24
+      - DEBUG=${NORDVPN_DEBUG}
+    #volumes:
+    #  - /etc/resolv.conf:/etc/resolv.conf
+
+  rutorrent:
+    image: linuxserver/rutorrent
+    container_name: rutorrent
+    network_mode: service:nordvpn
+    depends_on:
+      - nordvpn
+    environment:
+      - PUID
+      - PGID
+      - UMASK=002
+      - TZ=America/Toronto
+    volumes:
+      - ${RUTORRENT_CONFIG_DIR}:/config
+      - ${RUTORRENT_DOWNLOADS_DIR}:/downloads
+
+  torrent_web:
+    image: dperson/nginx        # https://github.com/dperson/nginx
+    container_name: ui
+    networks:
+      - internal
+    depends_on:
+      - rutorrent
+    command: ["-w", "http://nordvpn:80/;/"] 
+
+  openvpn-as:
+    image: linuxserver/openvpn-as
+    container_name: openvpn
+    networks:
+      - internal
+    dns:
+      - ${DNS_IP_ADDR}
+      - 8.8.8.8
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID
+      - PGID
+      - TZ=America/Toronto
+    volumes:
+      - ${OPENVPN_CONFIG_DIR}:/config
+    ports:
+      - 943:943
+      - 9443:9443
+      - 1194:1194/udp
+
+  console-go:
+    build: ./console-go
+    image: torrent/console-go
+    container_name: api
+    networks:
+      internal:
+        ipv4_address: ${CONSOLE_IP_ADDR}
+    environment:
+      - FILEBOT_MOVIE_INPUT
+      - FILEBOT_MOVIE_OUTPUT
+      - FILEBOT_TV_INPUT
+      - FILEBOT_TV_OUTPUT
+      - TWILIO_SID
+      - TWILIO_TOKEN
+      - TWILIO_NUMBER
+      - NOTIFY_NUMBER
+    volumes:
+      - ${CONSOLE_HOME}:/console-home
+      - ${CONSOLE_MOUNT}:/mount
+
+
+networks:
+  internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: ${SUBNET}
