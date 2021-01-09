@@ -1,0 +1,55 @@
+version: "3.3"
+services:
+  dnsproxy:
+    image: defreitas/dns-proxy-server
+    hostname: dns.server
+    networks:
+      gateway:
+        ipv4_address: ${DNS_IP_ADDR}
+      jenkins: {}
+      torrent: {}
+      minecraft: {}
+    environment:
+      - "MG_REGISTER_CONTAINER_NAMES=1"
+      - "MG_DOMAIN=container.server"
+    volumes:
+      - /etc/resolv.conf:/etc/resolv.conf
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  openvpn-as:
+    image: linuxserver/openvpn-as
+    hostname: openvpn.server
+    networks:
+      - gateway
+      - jenkins
+      - torrent
+      - minecraft
+    dns:
+      - ${DNS_IP_ADDR}
+      - 8.8.8.8
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID
+      - PGID
+      - TZ=America/Toronto
+    volumes:
+      - ${OPENVPN_CONFIG_DIR}:/config
+    ports:
+      - 943:943
+      - 9443:9443
+      - 1194:1194/udp
+
+networks:
+  gateway:
+    external:
+      name: gateway
+  jenkins:
+    external:
+      name: jenkins
+  torrent:
+    external:
+      name: torrent
+  minecraft:
+    external:
+      name: minecraft

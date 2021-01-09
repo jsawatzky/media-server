@@ -1,0 +1,21 @@
+version: "3.3"
+
+services:
+  minecraft_server:
+    build:
+      context: ./minecraft-server
+      args:
+        uid: $PUID
+        gid: $PGID
+    hostname: minecraft.server
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    ports:
+      - 25565:25565
+    volumes:
+      - $MINECRAFT_DIR/$MODPACK:/minecraft
+
+networks:
+  default:
+    external:
+      name: minecraft
