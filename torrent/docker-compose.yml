@@ -17,7 +17,8 @@ services:
       # - NETWORK=172.16.3.0/24
       - DEBUG=${NORDVPN_DEBUG}
     volumes:
-     - /etc/resolv.conf:/etc/resolv.conf
+      - /etc/resolv.conf:/etc/resolv.conf
+    restart: unless-stopped
 
   rutorrent:
     image: linuxserver/rutorrent
@@ -32,6 +33,7 @@ services:
     volumes:
       - ${RUTORRENT_CONFIG_DIR}:/config
       - ${RUTORRENT_DOWNLOADS_DIR}:/downloads
+    restart: unless-stopped
 
   torrent_web:
     image: dperson/nginx        # https://github.com/dperson/nginx
@@ -39,10 +41,14 @@ services:
     depends_on:
       - rutorrent
     command: ["-w", "http://nordvpn:80/;/"] 
+    restart: unless-stopped
 
   console-go:
-    build: ./console-go
-    image: torrent/console-go
+    build:
+      context: ./console-go
+      args:
+        uid: $PUID
+        gid: $PGID
     hostname: api.torrent.server
     networks:
       default:
@@ -59,6 +65,7 @@ services:
     volumes:
       - ${CONSOLE_HOME}:/console-home
       - ${CONSOLE_MOUNT}:/mount
+    restart: unless-stopped
 
 
 networks:

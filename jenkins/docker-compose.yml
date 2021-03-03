@@ -7,21 +7,16 @@ services:
         uid: $PUID
         gid: $PGID
         docker_gid: $DOCKER_GID
-    image: jsawatzky/jenkins
+    hostname: jenkins.server
     networks:
-      - jenkins
-      - torrent
-      - minecraft
+      jenkins:
+        ipv4_address: $JENKINS_IP_ADDR
+      torrent: {}
+      minecraft: {}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - ${JENKINS_DIR}:/var/jenkins_home
-
-  jenkins_proxy:
-    image: dperson/nginx        # https://github.com/dperson/nginx
-    hostname: jenkins.server
-    networks:
-      - jenkins
-    command: ["-w", "http://jenkins_app:8080/;/"] 
+    restart: unless-stopped
 
 networks:
   jenkins:

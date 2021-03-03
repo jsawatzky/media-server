@@ -15,6 +15,7 @@ services:
     volumes:
       - /etc/resolv.conf:/etc/resolv.conf
       - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
 
   openvpn-as:
     image: linuxserver/openvpn-as
@@ -39,6 +40,7 @@ services:
       - 943:943
       - 9443:9443
       - 1194:1194/udp
+    restart: unless-stopped
 
 networks:
   gateway:
