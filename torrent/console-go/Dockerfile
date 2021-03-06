@@ -29,6 +29,7 @@ RUN pip3 install twilio
 COPY bin /usr/bin
 COPY --from=build /go/src/console-go /usr/bin
 
+RUN chmod -R a+x /usr/bin
 RUN setcap 'cap_net_bind_service=+ep' /usr/bin/console-go
 
 RUN mkdir -p /console-home \
