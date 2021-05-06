@@ -7,15 +7,15 @@ fi
 
 case $1 in
     movies)
-        INPUT=$FILEBOT_MOVIE_INPUT
-        OUTPUT=$FILEBOT_MOVIE_OUTPUT
+        INPUT=/mount/input/movies
+        OUTPUT=/mount/movies
         LABEL="Movie"
         FORMAT_PARAM="movieFormat"
         NOTIFY_FORMAT="\"{n}\""
         ;;
     tvshows)
-        INPUT=$FILEBOT_TV_INPUT
-        OUTPUT=$FILEBOT_TV_OUTPUT
+        INPUT=/mount/input/movies
+        OUTPUT=/mount/tvshows
         LABEL="TV"
         FORMAT_PARAM="seriesFormat"
         NOTIFY_FORMAT="\"{n} {s00e00} {t}\""
@@ -26,4 +26,4 @@ case $1 in
         ;;
 esac
 
-filebot -script fn:amc /mount/$INPUT --output /mount/$OUTPUT --action hardlink -non-strict --order Airdate --conflict auto --lang en --def ut_label=$LABEL unsorted=y subtitles=eng skipExtract=y $FORMAT_PARAM={plex.tail} unsortedFormat=unsorted/{fn} excludeList=.excludes exec="/usr/bin/notify-twilio $NOTIFY_FORMAT" --log all --log-file filebot.log
+filebot -script fn:amc $INPUT --output $OUTPUT --action copy -non-strict --order Airdate --conflict auto --lang en --def ut_label=$LABEL unsorted=y subtitles=eng skipExtract=y $FORMAT_PARAM={plex.tail} unsortedFormat=unsorted/{fn} excludeList=.excludes exec="/usr/bin/notify-twilio $NOTIFY_FORMAT" --log all --log-file filebot.log

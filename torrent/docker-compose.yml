@@ -10,6 +10,8 @@ services:
       - net.ipv4.conf.all.rp_filter=2
     devices:
       - /dev/net/tun
+    extra_hosts:
+      - "console:${CONSOLE_IP_ADDR}"
     environment:
       - USER=${NORDVPN_USER}
       - PASS=${NORDVPN_PASS}
@@ -54,17 +56,15 @@ services:
       default:
         ipv4_address: ${CONSOLE_IP_ADDR}
     environment:
-      - FILEBOT_MOVIE_INPUT
-      - FILEBOT_MOVIE_OUTPUT
-      - FILEBOT_TV_INPUT
-      - FILEBOT_TV_OUTPUT
       - TWILIO_SID
       - TWILIO_TOKEN
       - TWILIO_NUMBER
       - NOTIFY_NUMBER
     volumes:
       - ${CONSOLE_HOME}:/console-home
-      - ${CONSOLE_MOUNT}:/mount
+      - ${FILEBOT_INPUT}:/mount/input
+      - ${FILEBOT_MOVIE_OUTPUT}:/mount/movies
+      - ${FILEBOT_TV_OUTPUT}:/mount/tvshows
     restart: unless-stopped
 
 

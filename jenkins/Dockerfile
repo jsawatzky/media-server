@@ -4,9 +4,11 @@ ARG uid
 ARG gid
 ARG docker_gid
 
+ENV JENKINS_OPTS --httpPort=80
+
 USER root
 
-RUN apt-get update && apt-get install -y apt-transport-https \
+RUN apt-get update && apt-get install -y libcap2-bin apt-transport-https \
        ca-certificates curl gnupg2 \
        software-properties-common
 RUN curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
@@ -16,9 +18,15 @@ RUN add-apt-repository \
        $(lsb_release -cs) stable"
 RUN apt-get update && apt-get install -y docker-ce-cli
 
+RUN setcap 'cap_net_bind_service=+ep' $(which java)
+RUN ln -s /opt/java/openjdk/lib/amd64/jli/libjli.so /usr/lib
+RUN ldconfig
+
 RUN groupadd -g ${docker_gid} docker \
     && groupmod -g ${gid} jenkins \
     && usermod -aG docker -u ${uid} -g ${gid} jenkins \
     && chown ${uid}:${gid} /var/jenkins_home
 
 USER jenkins
+
+EXPOSE 80
