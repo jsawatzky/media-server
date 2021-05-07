@@ -14,7 +14,7 @@ case $1 in
         NOTIFY_FORMAT="\"{n}\""
         ;;
     tvshows)
-        INPUT=/mount/input/movies
+        INPUT=/mount/input/tvshows
         OUTPUT=/mount/tvshows
         LABEL="TV"
         FORMAT_PARAM="seriesFormat"

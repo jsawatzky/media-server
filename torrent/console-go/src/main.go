@@ -25,6 +25,9 @@ func main() {
 
 	go service.ProcessFilebot(filebotChan)
 
+	cmd := exec.Command("filebot", "-script", "fn:properties", "--def", "net.filebot.xattr.store=.xattr")
+	filebotChan <- cmd
+
 	ApiService := service.NewApiService(filebotChan)
 	DefaultApiController := openapi.NewDefaultApiController(ApiService)
 
